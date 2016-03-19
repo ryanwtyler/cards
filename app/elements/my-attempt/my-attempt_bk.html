@@ -1,0 +1,189 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+<dom-module id="my-attempt">
+  <template>
+    <style>
+    :host {
+        --paper-input-container-disabled: {
+          background-color: blue;
+          border-radius: 4px;
+          border: 1px solid gray;
+        };
+      :host .strike{
+        text-decoration: line-through;
+      }
+      :host .green{
+        background-color: green;
+      }
+      :host .red{
+        background-color: red;
+      }
+    
+    </style>
+
+
+    <template is="dom-if" if="{{_showLabel(attempts.*, position)}}">
+           <label class$="{{_myclass}}">{{_computeLabel(position, attempts.*)}}</label>
+          
+    </template>
+
+
+    <template is="dom-if" if="{{!_showLabel(attempts.*, position)}}">
+      <iron-a11y-keys id="a11y" target="{{targetChg}}" keys="enter"
+                      on-keys-pressed="changeWeightF"></iron-a11y-keys>
+                      
+      
+      <paper-input-container disabled$="{{_computeDisabled(attempts.*, attempts.length, position)}}">
+        <label style$="{{strikeString}}">{{position.change}}</label>
+        <input id="txtChg" is="iron-input" prevent-invalid-input allowed-pattern="[0-9]" disabled$="{{_computeDisabled(attempts.*, attempts.length, position)}}">
+      </paper-input-container>
+    </template>
+  </template>
+
+    <script>
+
+    
+      Polymer({
+        is: 'my-attempt',
+        properties: {
+          myclass: {
+            type: String
+          },
+          attempts: {
+            type: Array,
+            notify: true
+          },
+          position: {
+            type: Object,
+            value: function() { return {}; },
+            notify: true
+          },
+          used: {
+            type: Boolean,
+            value: false,
+            notify: true
+          },
+          targetChg: {
+            type: Object,
+            value: function() {
+              return this.$.txtChg;
+            }
+          },
+          change: {
+            type: Number,
+            notify: true
+          },
+          disableString: {
+            type:  Boolean,
+            value: false,
+            notify: true
+          },
+          strikeString: {
+            type: String,
+            notify: true
+          },
+          labelVal: {
+            type: String,
+            notify: true
+          },
+          disablestring: {
+            type: Boolean,
+            notify: true
+          }
+
+        },
+        _computeLabelClass: function(changeRecord, l_position) {
+        
+          //strike: auto, declared, change1 
+          if(this.attempts.length >= l_position.liftNum) {
+            var thisAttempt = this.attempts[l_position.liftNum-1];
+            if(thisAttempt.change2 == null) {
+              if (thisAttempt.change != "change2") {
+                return "strike";
+              }
+            }
+          }
+          //green
+          if (this.attempts.length >= l_position.liftNum) {
+            var thisAttempt = this.attempts[l_position.liftNum-1];
+            if (thisAttempt.attempted == thisAttempt[l_position.change]) {
+              if (thisAttempt.made) {
+                return "green";
+              }
+              else {
+                return "red";
+              }
+            }
+          }
+        },
+        _showLabel: function(changeRecord, l_position) {
+          if(this.attempts.length >= l_position.liftNum) {
+            if (this.attempts[l_position.liftNum-1][l_position.change] != null) {
+              return true;
+            }
+            else {
+              return false;
+            }
+          }
+          else {
+            return false;
+          }
+
+        },
+        _computeLabel:  function(l_position, changeRecord) {
+          return this.attempts[l_position.liftNum-1][l_position.change];
+          
+        },
+        _computeDisabled: function(changeRecord, l_length, l_position) {
+          
+          if(l_position.liftNum != changeRecord.base.length) {
+            return true;
+          }
+          else {
+            if(this.attempts[l_length-1].declared == null) {
+              return (l_position.change != "declared");
+            }
+            if(this.attempts[l_length-1].change1 == null) {
+              return(l_position.change != "change1");
+            }
+            if(this.attempts[l_length-1].change2 == null) {
+              return(l_position.change != "change2");
+            }
+            
+          }
+        },
+        _computeUsed: function (newVal, oldVal) {
+          var chg = parseInt(this.change);
+          if (newVal >0) {
+            this.set('disabledString', true);
+            this.set('labelVal', newVal);
+
+          }
+          else {
+            this.set('labelVal', "Change " + this.change);
+           
+          }
+          
+        },
+        changeWeightF: function(ev) {
+          
+          
+          var inputVal = parseInt(this.$$("#txtChg").value);
+          
+          var liftNum = this.getAttribute("liftNum");
+          //this.chng = inputVal;
+         
+          this.set("attempts." + (this.position.liftNum-1) + "." + this.position.change, inputVal);
+
+
+        },
+        
+        created: function() {
+          console.log ("my-attempt created");
+        }
+      });
+  
+    </script>
+  
+</dom-module>

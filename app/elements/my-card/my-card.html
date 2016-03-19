@@ -1,0 +1,272 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../my-attempt/my-attempt.html">
+
+
+<dom-module id="my-card">
+  
+  
+  <template>
+
+    <style include="iron-flex iron-flex-alignment">
+      :host .container {
+        background-color: gray;
+        height: 470px;
+      };
+      :host div {
+        background-color: white;
+        padding: 1px;
+        margin: 1px;
+         
+      };
+      
+      :host .child {
+        border-radius: 4px;
+          border: 1px solid gray;
+      };
+      
+      
+      :host .bg-text {
+        color: gray;
+        background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='50px' width='120px'><text x='0' y='15' fill='red' font-size='20px'>I love SVG!</text></svg>");
+      };
+
+    
+    
+    </style>
+    
+    <div class="container">  
+      <div class="layout horizontal">
+        
+        <div class="flex-4 child">Athlete Name:  [[lifter.name]]</div>
+        <div class="flex-2 child">Category:  [[lifter.category]]</div>
+          
+      </div>
+      <div class="layout horizontal">
+        
+        <div class="flex-4 child">Team:  [[lifter.team]]</div>
+        <div class="flex-2 child"> BW:  [[lifter.bw]]</div>
+          
+      </div>
+      <div class="layout horizontal">
+        
+        <div class="flex-3 child">Snatch</div>
+        <div class="flex-3 child"> Clean & Jerk</div>
+          
+      </div>
+      <div class="layout horizontal">
+          
+          <div class="flex-1 child">1</div>
+          <div class="flex-1 child">2</div>
+          <div class="flex-1 child">3</div>
+          <div class="flex-1 child">1</div>
+          <div class="flex-1 child">2</div>
+          <div class="flex-1 child">3</div>
+      </div>
+      <div class="layout horizontal" >
+        
+          <div class="flex-1 child">
+            <my-attempt attemptnum=1 id="ma1" attempt="{{lifter.attempts.0}}"></my-attempt>
+         </div>
+        
+        
+          <div class="flex-1 child">
+            <my-attempt attemptnum=2 id="ma2" attempt="{{lifter.attempts.1}}"></my-attempt>
+          </div>
+        
+        
+          <div class="flex-1 child">
+           <my-attempt attemptnum=3 id="ma3" attempt="{{lifter.attempts.2}}"></my-attempt>
+          </div>
+        
+        
+          <div class="flex-1 child">
+            <my-attempt attemptnum=4 id="ma4" attempt="{{lifter.attempts.3}}"></my-attempt>
+          </div>
+        
+          <div class="flex-1 child">
+            <my-attempt attemptnum=5 id="ma5" attempt="{{lifter.attempts.4}}"></my-attempt>
+          </div>
+        
+          <div class="flex-1 child">
+            <my-attempt attemptnum=6 id="ma6" attempt="{{lifter.attempts.5}}"></my-attempt>
+         </div>
+        
+      </div>
+      <div class="layout horizontal">
+        
+            <div class="flex-3 child">Total:  [[lifter.total]]</div>
+          
+            <div class="flex-3 child"> BW:  [[lifter.bw]]</div>
+          
+          
+      </div>
+    </div>   
+
+     
+      
+    
+    
+      
+      
+      
+  
+  </template>
+ 
+
+  <script>
+    
+    Polymer({
+      is: 'my-card',
+      properties: {
+        
+        disabledString: {
+          type: Boolean,
+          value: true
+        },
+        currentChange: {
+          type:  Number,
+          value: 0,
+          notify: true
+        },
+        meetId: {
+          type: Number
+        },
+        lifter: {
+          type: Object,
+          notify: true
+        },
+        divClass:  {
+          type: String,
+          computed:  'computeClass(lifter.attempts.0.made, lifter.attempts.0.change1)',
+          reflectToAttribute: true
+        }
+        
+      },
+      observers: [
+        'dataChanged(lifter.attempts.*)'
+
+        ],
+      listeners: {
+        'madeLift': 'makeLift'
+      },
+      computeClass: function(made, chg1) {
+        if(chg1 != null) {
+          return "used";
+        }
+        if (made) {
+          return "isGreen";
+        }
+        
+      },
+      _copmputeDisabled: function(l_attempts, positionLift, positionChange) {
+        var attemptNumber = l_attempts.base.length -1;
+        if (attemptNumber == positionLift) {
+          if (l_attempts.base[attemptNumber].declared == null) {
+            return (positionChange !=0);
+          }
+          if (l_attempts.base[attemptNumber].change1 == null) {
+            return (positionChange !=1); 
+          }
+          if (l_attempts.base[attemptNumber].change2 == null) {
+            return (positionChange !=2); 
+          }
+        }
+        else {
+          return true;
+        }
+        
+      },
+      makeLift: function(iWeight) {
+        var curAtt = this.lifter.currentAttempt;
+        var myAtt = this.$$("#ma" + curAtt);
+        console.log("make lift: " + this.lifter.name);
+        this.set('lifter.total', this.lifter.total + iWeight.detail);
+        this.$$("#ma" + curAtt).fire('madeLift2', iWeight);
+        //this.set('lifter.attempts.' + (this.lifter.currentAttempt-1) + '.made', true);
+        if(curAtt != 3 && curAtt != 6) {
+          this.set('lifter.attempts.' + (curAtt) + '.auto', iWeight.detail+1);
+        }
+        
+        myAtt.set('attempt.b_currentAttempt', false);
+        this.set('lifter.currentAttempt', curAtt + 1);
+        var myNextAtt = this.$$("#ma" + (curAtt + 1));
+        myNextAtt.set('attempt.b_currentAttempt', true);
+        this.set('lifter.nextWeight', iWeight.detail+1);
+        /*
+        this.set('meetData.' + this.$.lifterCards.keyForElement(model) + '.liftsLeft', model.data.liftsLeft-1);
+        this.set('meetData.' + this.$.lifterCards.keyForElement(model) + '.currentLift', model.data.currentLift+1);
+        //model.data.currentChange = 0;
+        this.set('meetData.currentWeight', this.$$("my-card:nth-of-type(2)").data.nextWeight);
+  */
+      },
+      arrayItem: function(change, index, path) {
+        // this.get(path, root) returns a value for a path
+        // relative to a root object.
+        return this.get(path, change.base[index]);
+      },
+      arrayItem2: function(change, index) {
+        // this.get(path, root) returns a value for a path
+        // relative to a root object.
+        return change.base[index];
+      },
+      
+      
+      dataChanged: function (changeRecord) {
+        
+        //console.log("attempts observer:  " + changeRecord.path);
+        if(changeRecord.path =="lifter.attempts") {
+          
+        }
+        if(changeRecord.path.indexOf("change1") > 0) {
+          if(changeRecord.base[0].change1 > 0) {
+            
+           
+            this.set('disabledString', false);
+            //this.set('divStrike', "text-decoration:line-through");
+             this.set('lifter.nextWeight', changeRecord.base[0].change1);
+            
+          }
+        }
+        else if(changeRecord.path.indexOf("change2") > 0) {
+          if(changeRecord.base[0].change1 > 0) {
+            this.set('lifter.nextWeight', newVal.base[0].change2);
+
+            this.set('lifter.strikeString', "text-decoration:line-through");
+          }
+        }
+        
+      },
+      change2Changed: function (newVal) {
+        if(newVal > 0) {
+          this.set('lifter.nextWeight', newVal);
+
+          this.set('lifter.strikeString', "text-decoration:line-through");
+        }
+      },
+       updateStyle: function(ev) {
+          Polymer.updateStyles();
+        },
+      
+    });
+  
+  </script>
+
+</dom-module>
+
+
+
+

@@ -1,0 +1,187 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+<dom-module id="my-attempt">
+  <template>
+    <style>
+      
+      
+      :host([displayinput]) .myinput {
+        display: inline;
+        
+      };
+      
+       
+      :host .hidelabel {
+        display: none;
+      }
+      :host([displaylabel]) .mylabel {
+        display: inline;
+        background: green;
+      }
+      :host([isstrike])  .mylabel {
+        text-decoration: line-through;
+        color: green;
+      }
+      
+       ;
+
+    </style>
+    <style is="custom-style">
+     
+    </style>
+    <iron-a11y-keys id="a11y" target="[[targetChg]]" keys="enter"
+                    on-keys-pressed="changeWeight"></iron-a11y-keys>
+                    
+    <div class="mylabel" >{{weight}}</div>
+    <paper-input-container>
+  <label>Change {{change}}</label>
+  <input id="txtChg" id="myinput" hidden$="{{hiddenstring}}" is="iron-input" prevent-invalid-input allowed-pattern="[0-9]"></input>
+</paper-input-container>
+  </template>
+
+    <script>
+
+    
+      Polymer({
+        is: 'my-attempt',
+        properties: {
+          hiddenstring: {
+            type: String
+          },
+          change: {
+            type: Number,
+            notify: true,
+            reflectToAttribute: true
+          },
+          data: {
+            type:  Object,
+            notify: true
+          },
+          weight: {
+            type:  Number
+          },
+          targetChg: {
+            type: Object,
+            value: function() {
+              return this.$.txtChg;
+            }
+          },
+          currentChange: {
+            type: Number,
+            notify: true
+          }
+
+        },
+
+        observers: [
+          'currentChangeChanged(data.currentChange)'
+        ],
+        changeWeight: function(ev) {
+          this.set('data.currentChange',this.data.currentChange + 1);
+          
+          console.log("after currentChange  lifter:  " + this.data.name + "  element ID:  " + this.data.currentChange);
+          document.querySelector("#lifterCards").render();
+          var inputVal = parseInt(ev.currentTarget.target.value);
+          ev.currentTarget.target.value = "";
+          var liftNum = this.getAttribute("liftNum");
+          var changeNum = this.getAttribute("change");
+          
+          
+          console.log("1.  lotId:  " + this.data.lotId + "  element ID:  " + this.id);
+          
+          
+          this.set('data.nextWeight', inputVal); 
+          console.log("after changing nextWeight  lifter:  " + this.data.name + "  element ID:  " + inputVal);
+          this.set('data.attempts.' + liftNum + '.change' + changeNum , inputVal);
+          
+          
+
+
+
+          //console.log("after change1  lifter:  " + this.data.name + "  element ID:  " + this.id);
+          
+          
+          this.customStyle['--paper-input-container-color'] = 'green';
+          this.updateStyles();
+          
+          this.hiddenstring = "true";
+
+        },
+        computeHidden: function() {
+          var chg = parseInt(this.getAttribute("change"));
+          var curChg = parseInt(this.currentChange);
+          if ((chg - curChg) >  0 ) {
+            console.log('displayinput ' + this.data.name)
+            console.log('chg ' + chg);
+            console.log('curChg ' + curChg);
+            console.log('diff  ' + (chg - curChg));
+            //this.setAttribute('hideinput', false);
+            return "hidelabel";
+          }
+          
+        },
+        currentChangeChanged: function(lcurChg) {
+          var chg = parseInt(this.getAttribute("change"));
+          var curChg = lcurChg;
+
+          if ((chg - curChg) >  0 ) {
+            console.log('displayinput ' + this.data.name)
+            console.log('chg ' + chg);
+            console.log('curChg ' + curChg);
+            console.log('diff  ' + (chg - curChg));
+            //this.setAttribute('hideinput', false);
+            this.setAttribute('displayinput', true);
+            this.setAttribute('hidelabel', true);
+          }
+          else {
+             console.log('displaylabel  ' + this.data.name + " " + this.data.attempts[0].change1 + " " + this.weight);
+            console.log('chg ' + chg);
+          console.log('curChg ' + curChg);
+          console.log('diff  ' + (chg - curChg));
+            this.setAttribute('inputclass', true);
+            this.setAttribute('hideinput', true);
+          }
+          /*
+          if(chg==0) {//declared
+            
+            this.setAttribute('hideinput', true);
+            
+            if (curChange > 0) {
+              this.setAttribute('isstrike', true);
+            }
+          }
+          else {
+            this.setAttribute("isenabled", chg==curChange); 
+            if (chg == 1) {//change 1
+              //this.setAttribute('isstrike', true);
+              
+              this.setAttribute('displayinput', true);
+              this.setAttribute('hidelabel', true);
+
+            }
+          
+          }*/
+        },
+        
+        arrayItem: function(change, index) {
+          // this.get(path, root) returns a value for a path
+          // relative to a root object.
+          
+          return this.get(path, change.base[index]);
+        },
+        arrayItem2: function(change, index, path) {
+          // this.get(path, root) returns a value for a path
+          // relative to a root object.
+          return this.get(path, change.base[index]);
+        },
+        
+        
+        created: function() {
+          console.log ("my-attempt created");
+        }
+      });
+  
+    </script>
+  
+</dom-module>

@@ -1,0 +1,182 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../my-card/my-card.html">
+
+
+
+
+<dom-module id="my-cards">
+  <template>
+    <style include="iron-flex iron-flex-alignment">
+    div {
+      padding: 4px;
+    }
+    </style>
+    <paper-button raised on-tap="makeLift" id="btnMake">Make</paper-button>
+    <paper-button raised on-tap="missLift" id="btnMiss">Miss</paper-button>
+    <div class="layout horizontal wrap">
+      <template is="dom-repeat" id="lifterCards" items="{{meetData}}" sort="_computeSort" observe="nextWeight">
+
+        <div><my-card  id="card{{item.lotId}}" lifter="{{item}}"></my-card></div>
+        
+      </template>
+    </div>
+    
+    <paper-dialog id="dialog">
+      <h2>Next Weight:  <paper-input auto-validate allowed-pattern="[0-9]" id="nextWeight"></h2>
+     
+    </paper-dialog>
+  </template>
+ 
+
+  <script>
+    
+    Polymer({
+      is: 'my-cards',
+      properties: {
+        
+        currentLotId: {
+          type: Number
+        },
+        currentWeight: {
+          type: Number,
+          observer: 'currentWeightChanged'
+        },
+        meetData: {
+          type: Array,
+          notify: true,
+          value : [{
+            lotId: 1,
+            liftsOut: null,
+            liftsLeft: 3,
+            name: "Ryan Tyler",
+            snatchOpener: 115,
+            cjOpener: 140,
+            nextWeight: 115,
+            currentAttempt: 1,
+            currentChange: 0,
+            total: 0,
+            attempts: []
+          }, {
+            lotId: 2,
+            liftsOut: null,
+            liftsLeft: 3,
+            name: "John Doe",
+            snatchOpener: 110,
+            cjOpener: 145,
+            nextWeight: 110,
+            currentAttempt: 1,
+            currentChange: 0,
+            total: 0,
+            attempts: []
+          },
+            {
+            lotId: 4,
+            liftsOut: null,
+            liftsLeft: 3,
+            name: "fred Doe",
+            nextWeight: 140,
+            snatchOpener: 140,
+            cjOpener: 180,
+            currentAttempt: 1,
+            currentChange: 1,
+            total: 0,
+            attempts: []
+          },
+          {
+            lotId: 3,
+            liftsOut: null,
+            liftsLeft: 3,
+            name: "Fred Flinstone",
+            snatchOpener: 105,
+            cjOpener:138,
+            nextWeight: 105,
+            currentAttempt: 1,
+            currentChange: 1,
+            total: 0,
+            attempts: []
+          
+          }],
+          observer: 'lAdded'
+        
+        },
+        observers: [
+          'lifterAdded(meetData.*)'
+        ]
+
+      
+        
+    },
+    lAdded: function (newVal) {
+      for (j = 0; j <newVal.length; j++) {
+        for (i=1; i<=6; i++) {
+          
+          if(i==1) {
+            this.push('meetData.' + j + '.attempts', {attemptNum:i, declared: newVal[j].snatchOpener, change1:null, change2:null, attempted: null, made: null, weight: null, b_currentAttempt: false});
+            
+          }
+          else if(i==4) {
+              this.push('meetData.' + j + '.attempts', {attemptNum:i, declared: newVal[j].cjOpener, change1:null, change2:null, attempted: null, made: null, weight: null, b_currentAttempt: false});
+          }
+          else {
+            this.push('meetData.' + j + '.attempts', {attemptNum:i, declared: null, change1:null, change2:null, attempted: null, made: null, weight: null, b_currentAttempt: false});
+          }
+        }
+        this.set('meetData.' + j + '.attempts.0.b_currentAttempt', true);
+      }
+
+    },
+    makeLift: function(ev) {
+
+        var model = this.$$('my-card');//first of sorted my-cards
+        model.fire('madeLift', parseInt(model.lifter.nextWeight));
+        /*
+        this.set('meetData.' + this.$.lifterCards.keyForElement(model) + '.total', parseInt(model.data.total) + parseInt(model.data.nextWeight));
+        this.set('meetData.' + this.$.lifterCards.keyForElement(model) + '.liftsLeft', model.data.liftsLeft-1);
+        this.set('meetData.' + this.$.lifterCards.keyForElement(model) + '. currentAttempt', model.data. currentAttempt+1);
+        //model.data.currentChange = 0;
+        this.set('meetData.currentWeight', this.$$("my-card:nth-of-type(2)").data.nextWeight);
+        var dialog = document.getElementById("dialog");
+        if (dialog) {
+          dialog.open();
+        }
+        */
+    },
+    
+    _computeSort: function(a,b) {
+      
+      
+      console.log("a : " + a.nextWeight + " b: " + b.nextWeight);
+      Polymer.updateStyles();
+      if(b.currentAttempt>=3 && a.currentAttempt <3) {
+        return -1;
+      }
+      if (a.nextWeight == b.nextWeight) {//if next weight to be attempted is equal
+        if (a.attempts.length == b.attempts.length) {//if both lifters are on same attempt
+          return (a.lotId - b.lotId);//lower lot id goes first
+        }
+        return (a.attempts.length - b.attempts.length);//if weight is same lifter with fewerr attempted lifts goes first
+      }
+      return a.nextWeight - b.nextWeight; //lifter with lower weight goes first
+      
+      console.log("after sort");
+      
+    }
+      
+    });
+    
+  </script>
+
+</dom-module>

@@ -1,0 +1,105 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+
+<dom-module id="my-cards">
+  
+  
+  <template>
+    <paper-card heading="Card Title">
+      <div class="card-content">
+
+        <h1>[[athlete.name]]</h1>
+        <ul>
+          <li>snatch 1:  <iron-a11y-keys id="a11y" target="[[target]]" keys="enter"
+                    on-keys-pressed="onEnter"></iron-a11y-keys><div id="declared1"><paper-input value="{{userInput::input}}" label="[[arrayItem(lifts.*, 0, 'declared')]]"></paper-input></div></li>
+          <li>change 1:  <div id="change1">[[arrayItem(lifts.*, 0, 'change1')]]</div></li>
+          <li>change 2:  [[arrayItem(lifts.*, 0, 'change2')]]</li>
+          <li>snatch 2:  [[arrayItem(lifts.*, 1, 'declared')]]</li>
+          <li>change 1:  [[arrayItem(lifts.*, 1, 'change1')]]</li>
+          <li>change 2:  [[arrayItem(lifts.*, 1, 'change2')]]</li>
+          <li>snatch 3:  [[arrayItem(lifts.*, 2, 'declared')]]</li>
+          <li>change 1:  [[arrayItem(lifts.*, 2, 'change1')]]</li>
+          <li>change 2:  [[arrayItem(lifts.*, 2, 'change2')]]</li>
+        </ul>
+        <ul>
+          <li></li>
+          <li></li>
+          <li></li>
+        </ul>
+
+      </div>
+      <div class="card-actions">
+        <paper-button>Some action</paper-button>
+      </div>
+    </paper-card>
+    
+      
+      
+      
+  
+  </template>
+ 
+
+  <script>
+    
+    Polymer({
+      is: 'my-cards',
+      properties: {
+        athlete: {
+          type: Object,
+          value: {name:  "Travis Cooper"}
+        },
+        meetId: {
+          type: Number
+        },
+        
+        lifts: {
+          type: Array,
+          value: [{ name: 'snatch 1', weight: null, success: null, delcared: null, change1:  null, change2: null}, 
+                  { name: 'snatch 2', weight: null, success: null, delcared: null, change1:  null, change2: null}, 
+                  { name: 'snatch 3', weight: null, success: null, delcared: null, change1:  null, change2: null} ]
+        },
+        target: {
+          type: Object,
+          value: function() {
+            return this.$.input;
+          }
+        }
+      },
+
+        arrayItem: function(change, index, path) {
+        // this.get(path, root) returns a value for a path
+        // relative to a root object.
+        return this.get(path, change.base[index]);
+        },
+      
+      ready: function() {
+        //this.unshift('lifts', { name: 'sn' , weight: 107});
+        // change a subproperty
+        //this.set('lifts.0.weight', 105);
+      },
+      onEnter: function(ev) {
+        this.lifts[0].weight = this.userInput
+        document.getElementById('declared1').innerHTML = this.userInput;
+        document.getElementById('change1').innerHTML = "<paper-input></paper-input>";
+      }
+    
+      
+    });
+  
+  </script>
+
+</dom-module>

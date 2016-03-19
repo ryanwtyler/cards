@@ -1,0 +1,61 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+
+<link rel="import" href="../my-attempt/my-attempt.html">
+
+
+<dom-module id="my-card">
+  
+  
+  <template>
+    
+        
+
+            
+            <div>change1: [[arrayItem(lifter.attempts.*, 0, 'change1')]]<div><br>
+              <div>Total: [[lifter.total]]</div>
+          
+            <div><my-attempt some-prop="{{lifter.attempts.0.change1}}"></my-attempt></div>
+            
+          
+
+  </template>
+ 
+
+  <script>
+    
+    Polymer({
+      is: 'my-card',
+      properties: {
+
+        currentChange: {
+          type:  Number,
+          value: 0,
+          notify: true
+        },
+        lifter: {
+          type: Object,
+          notify: true
+        }
+      },
+      observers: ['changeChanged(lifter.attempts.*)'],
+      changeChanged: function(changeRecord) {
+        console.log("change1:  " + changeRecord.path);
+        
+      },
+
+      arrayItem: function(change, index, path) {
+        // this.get(path, root) returns a value for a path
+        // relative to a root object.
+        return this.get(path, change.base[index]);
+      }
+      
+    });
+  
+  </script>
+
+</dom-module>
+
+
+

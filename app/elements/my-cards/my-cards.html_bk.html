@@ -1,0 +1,230 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../my-card/my-card.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+<style is="custom-style">
+  .flex {
+    @apply(--layout-horizontal);
+  }
+</style>
+<dom-module id="my-cards">
+  <template>
+    
+    
+    <iron-a11y-keys id="a11y" target="[[targetS2Declared]]" keys="enter"
+                    on-keys-pressed="setWeight"></iron-a11y-keys>
+                    
+      
+      <div class="container flex">
+
+        
+        
+        <div class="card-actions">
+          <paper-button raised on-tap="makeLift" id="btnMake">Make</paper-button>
+          <paper-button raised on-tap="missLift" id="btnMiss">Miss</paper-button>
+        </div>
+        <template is="dom-repeat" id="lifterCards" items="{{meetData}}" sort="_computeSort" observe="nextWeight, currentChange">
+          <div>ziggy:  {{calcHidden(item.currentChange)}}</div>
+          <my-card ishidden$="{{calcHidden(item.currentChange)}}" isstrike$="{{calcHidden(item.currentChange)}}" curlift$="{{item.currentLift}}" id="card{{item.lotId}}" data="{{item}}"></my-card>
+          
+        </template>
+        
+      </div>
+      <paper-dialog id="dialog">
+        <h2>Next Weight:  <paper-input auto-validate allowed-pattern="[0-9]" id="nextWeight"></h2>
+       
+      </paper-dialog>
+  </template>
+ 
+
+  <script>
+    
+    Polymer({
+      is: 'my-cards',
+      properties: {
+        
+        currentLotId: {
+          type: Number
+        },
+        currentWeight: {
+          type: Number,
+          observer: 'currentWeightChanged'
+        },
+        targetS2Declared: {
+          type: Object,
+          value: function() {
+            return this.$.nextWeight;
+          }
+        },
+        meetData: {
+          type: Array,
+          notify: true,
+          value : [{
+            lotId: 1,
+            liftsOut: null,
+            liftsLeft: 3,
+            name: "Ryan Tyler",
+            nextWeight: 115,
+            currentLift: 0,
+            currentChange: 0,
+            total: 0,
+            attempts: [{
+              liftType: "snatch",
+              declared: 115,
+              change1: null,
+              change2: null,
+              attempted: null,
+              made: null,
+              weight: null
+            }]
+          }, {
+            lotId: 2,
+            liftsOut: null,
+            liftsLeft: 3,
+            name: "John Doe",
+            nextWeight: 110,
+            currentLift: 0,
+            currentChange: 0,
+            total: 0,
+            attempts: [{
+              liftType: "snatch",
+              declared: 110,
+              change1: null,
+              change2: null,
+              attempted: null,
+              made: null,
+              weight: null
+            }]
+          }, {
+            lotId: 3,
+            liftsOut: null,
+            liftsLeft: 3,
+            name: "Fred Flinstone",
+            nextWeight: 105,
+            currentLift: 0,
+            currentChange: 0,
+            total: 0,
+            attempts: [{
+              liftType: "snatch",
+              declared: 105,
+              change1: null,
+              change2: null,
+              attempted: null,
+              made: null,
+              weight: null
+            }]
+          }]
+        },
+        observers: [
+        'nextWeightChanged(meetData.*)'
+      ],
+      
+        
+    },
+
+    calcHidden: function(currentChange) {
+        return currentChange == 1;
+      },
+    ready: function() {
+      // access a local DOM element by ID using this.$
+      this.computeLiftsOut();
+    },
+    currentWeightChanged: function(changeRecord) {
+
+      
+     
+      
+      this.computeLiftsOut();
+      
+      console.log('path: ' + changeRecord.path);
+      console.log('value: ' + changeRecord.value);
+    },
+    nextWeightChanged: function(ev) {
+
+     
+      
+        
+        this.computeLiftsOut();
+      
+      
+    },
+    _computeSort: function(a,b) {
+      
+      
+      console.log("a : " + a.nextWeight + " b: " + b.nextWeight);
+      return a.nextWeight - b.nextWeight;
+      console.log("after sort");
+      
+    },
+    
+    makeLift: function(ev) {
+
+        var model = this.$$('my-card');//first of sorted my-cards
+        
+        
+        this.set('meetData.' + this.$.lifterCards.keyForElement(model) + '.total', parseInt(model.data.total) + parseInt(model.data.nextWeight));
+        this.set('meetData.' + this.$.lifterCards.keyForElement(model) + '.liftsLeft', model.data.liftsLeft-1);
+        this.set('meetData.' + this.$.lifterCards.keyForElement(model) + '.currentLift', model.data.currentLift+1);
+        model.data.currentChange = 0;
+        this.set('meetData.currentWeight', this.$$("my-card:nth-of-type(2)").data.nextWeight);
+        var dialog = document.getElementById("dialog");
+        if (dialog) {
+          dialog.open();
+        }
+        
+    },
+
+    missLift: function(ev) {
+
+    },
+    setWeight: function(ev) {
+      //var model = this.$.selector.selectedItem;
+      var model = this.$$('my-card');
+      var index = this.$.lifterCards.keyForElement(model);
+      
+      this.set('meetData.' + index + '.nextWeight', parseInt(ev.currentTarget.target.value));
+      var dialog = document.getElementById("dialog");
+        if (dialog) {
+          dialog.close();
+        }
+    },
+    computeLiftsOut: function() {
+      console.log("compute");
+      var arrCopy = this.meetData.slice(0, this.meetData.length-1);
+      arrCopy.sort(function(a, b) {
+        return (a.nextWeight - b.nextWeight);
+      });
+      /*
+      this.currentLotId = arrCopy.meetData[0].lotId;
+
+      var liftsOut = 0;
+      
+      this.meetData[0].liftsOut = 0;
+      this.meetData[0].minLiftsOut = 0;
+      for (var i=1; i<arrCopy.length; i++) {
+        
+        this.meetData[i].minLiftsOut = i;
+        liftsOut = liftsOut + this.meetData[i-1].liftsLeft;
+        this.meetData[i].liftsOut = liftsOut;
+      }
+      this.$.lifterCards.render();
+      */
+    }
+      
+    });
+    
+  </script>
+
+</dom-module>
