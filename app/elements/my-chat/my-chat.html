@@ -1,0 +1,154 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
+
+
+
+
+
+<dom-module id="my-chat">
+  <template>
+
+	<firebase-collection id="fb_messages"
+      location="https://brilliant-inferno-5243.firebaseio.com/chat/"
+      data="{{messages}}"
+      
+      on-firebase-error="onFirebaseError">
+      </firebase-collection>
+	<paper-toast id="errorToast"></paper-toast>		
+	
+	<paper-toolbar class="tall"></paper-toolbar>
+	
+	
+	
+
+	<paper-card>
+		
+		<div class="content" id="mainContainer">
+			<template is="dom-repeat" items="{{messages}}">
+				<div id="img_text_div">
+					<img src="[[item.img]]" width="50px" height="50px">
+					<div id="text_div">
+						<p id="item_time" title="[[item.date]]">[[item.time]]</p>
+						<p id="item_human">[[item.username]]</p>
+						<p id="item_text">[[item.text]]</p>
+					</div>
+				</div>
+			</template>				
+		</div>
+		<div class="bottom">
+			<form on-submit="addItem">
+				<paper-input placeholder="Write a message" value="{{newItemValue}}" style="width:100%"></paper-input>
+				<paper-fab icon="send" on-click="addItem"></paper-fab>
+			</form>
+		</div>
+	</paper-card>					
+	
+	
+</template>
+<script>
+ Polymer({
+    is: 'my-chat',
+    properties: {
+      
+      messages: {
+        type: Array,
+        notify: true
+      },
+      fbref: {
+      	type: Object, 
+      },
+      meetId: {
+      	type: String
+      },
+      fburl: {
+      	type: String
+      },
+      user: {
+      	type: Object,
+      	observer: 'onFirebaseLogin'
+      },
+      profilePic: {
+      	type: String,
+      	value: "http://usn.com.np/wp-content/uploads/2014/07/dummy-avatar.png"
+
+      },
+      profileName: {
+      	type: String,
+      	value: "Anonymous"
+      },
+      newItemValue: {
+      	type: String,
+      	notify: true
+      }
+
+     },
+        
+  	
+	
+
+	
+
+	updateItems: function(snapshot) {
+		this.set ('messages',[]);
+		snapshot.forEach(function(childSnapshot) {
+			var item = childSnapshot.val();
+			var UTCTime = new Date(item.time);
+			item.time = UTCTime.getHours() + ":" + (UTCTime.getMinutes() < 10?'0':'') + UTCTime.getMinutes();
+			var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "June","July", "Aug", "Sept", "Oct", "Nov", "Dec"];
+			item.date = UTCTime.getUTCDate() + " " + monthNames[UTCTime.getUTCMonth()] + " " + UTCTime.getUTCFullYear();
+			this.push('messages', item);
+		}.bind(this));
+		setTimeout(scrollToBottom, 0);
+		function scrollToBottom(){
+			document.getElementById('mainContainer').scrollTop = 999999999999999999999999;
+		}      
+	},
+
+	
+
+	addItem: function(event) {
+		event.preventDefault(); // Don't send the form!
+		if (this.newItemValue.length > 0){
+			var currentTime = (new Date()).getTime();
+			this.push('messages',{
+				text: this.newItemValue,
+				img: this.profilePic,
+				username: this.profileName,
+				time: currentTime
+			});
+			this.newItemValue = '';        
+		}
+	},
+
+	
+
+	onFirebaseError: function(event) {
+		this.$.errorToast.text = event.detail.message;
+		this.$.errorToast.show();
+	},
+
+	onFirebaseLogin: function(newVal, oldVal) {
+		if (newVal) {
+			this.profilePic = this.user.google.profileImageURL;
+			this.profileName = this.user.google.displayName;
+			this.set('fburl',  app.firebaseURL + '/chat/');
+			
+			
+		}
+	}
+
+	
+
+   
+
+  });
+
+  
+    </script>
+  
+</dom-module>

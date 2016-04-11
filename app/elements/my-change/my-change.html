@@ -1,0 +1,118 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+
+
+<dom-module id="my-change">
+  <template>
+    <style include="iron-flex iron-flex-alignment">
+    
+   
+
+      
+   
+    input {
+      width: 75px;
+    }
+   .mylabel {
+      opacity: .5;
+      text-align: center;
+      vertical-align: middle;
+
+
+    }
+   .change {
+    background-color: white;
+   }
+   .isgreen {
+      
+      color: green;    
+     
+    }
+    .isred {
+        
+      color: red;    
+     
+    }
+    .strike {
+        
+        text-decoration: line-through;
+      
+    }
+    
+
+
+    </style>
+      
+      <label class="mylabel">{{mylabel}}</label> 
+      <div class$="{{_computeClass(classprop)}}">{{val}}</div>
+      <input id="changeInput" disabled$="[[locked]]" hidden$="{{hideinput}}" is="iron-input" on-keydown="_checkAdd" prevent-invalid-input allowed-pattern="[0-9]"></input>
+     
+
+  </template>
+
+    <script>
+
+    
+      Polymer({
+        is: 'my-change',
+        properties: {
+          val: {
+            type: Number,
+            notify: true
+          },
+          mylabel: {
+            type: String
+          },
+          hideinput: {
+            type: Boolean,
+            notify: true
+          },
+          fieldname: {
+            type: String,
+            notify: true
+          },
+          classprop: {
+            type: String
+          },
+          locked: {
+            type: Boolean,
+            notify: true
+          }
+
+        },
+        
+
+       _checkAdd: function(e) {
+
+          if (e.keyCode === 13) {
+            
+            this._change();
+            e.target.value = "";
+            e.target.blur();
+          }
+        },
+
+        _change: function() {
+          if (this.$.changeInput.value) {
+            this.fire('val-change', {value: this.$.changeInput.value, field: this.fieldname});
+            this.$.changeInput.value = null;
+          }
+        },
+
+        created: function(ev) {
+          console.log("mychange");
+        },
+
+        _computeClass: function(l_class) {
+          return l_class;
+        }
+      
+      
+        
+    });
+  
+    </script>
+  
+</dom-module>

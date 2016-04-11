@@ -1,0 +1,371 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<dom-module id="my-attempt">
+  <template>
+    <style>
+    
+   
+
+      
+    :host {
+        --custom-color: green;
+        --custom-opacity: 1;
+        --red-color: red;
+        --custom-bold: bold;
+​        --strike-string: line-through;
+        --paper-input-container-disabled: {
+          background-color: white;
+          
+          border-radius: 4px;
+          border: 1px solid gray;
+          height: 50px;
+          opacity: 1;
+        };
+        
+        --paper-input-container-underline-disabled: {
+          background-color: green;
+          display: none;
+​
+        };
+​
+        --paper-input-container: {
+          border-radius: 4px;
+          border: 1px solid gray;
+          height: 50px;
+        };
+​
+      
+        
+      
+    }
+    
+    .isgreen {
+        --paper-input-container-label: {
+          color: var(--custom-color);    
+      };
+    }
+    .isred {
+        --paper-input-container-label: {
+          color: var(--red-color);    
+      };
+    }
+    .strike {
+        --paper-input-container-label: {
+          text-decoration: var(--strike-string);
+      };
+    }
+
+    .isbold {
+        --paper-input-container-label: {
+         font-weight: var(--custom-bold);
+         opacity: var(--custom-opacity);
+      };
+    }
+    
+
+
+    </style>
+    
+    <iron-a11y-keys keys="enter" on-keys-pressed="chgWt"></iron-a11y-keys>
+    <div class="layout vertical">
+      <div class="child">
+        
+       <paper-input-container disabled$="{{_computeDisabled(attempt.*, 1)}}" noLabelFloat=true class$="{{class1}}">
+          <label>{{_computeLabel(1, attempt.*)}}</label>
+          <input id="txtChg1" hidden$="{{_hideInput(1, attemptnum, attempt.*)}}" is="iron-input" prevent-invalid-input allowed-pattern="[0-9]"></input>
+        </paper-input-container>
+      </div>
+      <div class="child">
+        
+
+        <paper-input-container disabled$="{{_computeDisabled(attempt.*, 2)}}" noLabelFloat=true class$="{{class2}}">
+          <label>{{_computeLabel(2, attempt.*)}}</label>
+          <input id="txtChg2" value="{{userInput::input}}" hidden$="{{_hideInput(2, attemptnum, attempt.*)}}" is="iron-input" prevent-invalid-input allowed-pattern="[0-9]"></input>
+        </paper-input-container>
+        
+      </div>
+      <div class="child">
+        <paper-input-container disabled$="{{_computeDisabled(attempt.*, 3)}}" noLabelFloat=true class$="{{_computeClass(3, attempt.*)}}">
+          <label>{{_computeLabel(3, attempt.*)}}</label>
+          <input id="txtChg3" hidden$="{{_hideInput(3, attemptnum, attempt.*)}}" is="iron-input" prevent-invalid-input allowed-pattern="[0-9]"></input>
+        </paper-input-container>
+        
+      </div>
+      <div class="child">
+        <paper-input-container disabled$="{{_computeDisabled(attempt.*, 4)}}" noLabelFloat=true class$="{{_computeClass(4, attempt.*)}}">
+          <label>{{_computeLabel(4, attempt.*)}}</label>
+          <input id="txtChg4" hidden$="{{_hideInput(4, attemptnum, attempt.*)}}" is="iron-input" prevent-invalid-input allowed-pattern="[0-9]"></input>
+        </paper-input-container>
+      </div>
+    </div>       
+          
+    
+
+
+    
+      
+                      
+      
+      
+  </template>
+
+    <script>
+
+    
+      Polymer({
+        is: 'my-attempt',
+        properties: {
+          userInput: {
+            type: String,
+            notify: true,
+          },
+          attempt: {
+            type: Object,
+            notify: true
+          },
+          attemptnum: {
+            type: Number,
+            notify: true,
+            value: function() {return 0;}
+          },
+          b_currentAttempt: {
+            Type: Boolean,
+            notify: true
+          },
+          targetChg1: {
+            type: Object,
+            value: function() {
+              return this.$.txtChg1;
+            }
+          },
+          class1: {
+            type: String,
+            notify: true
+          },
+          class2: {
+            type: String,
+            notify: true
+          }
+
+        },
+        observers: 
+          ['attemptChanged(attempt.*)']
+        ,
+
+        listeners: {
+          'madeLift2': 'makeLift2'
+        },
+
+        makeLift2: function(iWeight, objData){
+          console.log("attempt make");
+          this.set('attempt.made', objData.b_Made);
+          this.set('attempt.attempted', objData.weight);
+          this.set('class1', 'isgreen');
+        },
+
+        created: function() {
+          console.log("created");
+        },
+
+        chgWt: function(ev) {
+          
+          console.log("change weddight");
+          var val = document.activeElement.value;
+          if (typeof val != 'undefined' ) {
+            var inputVal = parseInt(document.activeElement.value);
+            if(document.activeElement.id == "txtChg2") {
+              var updateField = "declared";
+            } 
+            else if (document.activeElement.id == "txtChg3") {
+              var updateField = "change1";
+              if(this.attemptnum == 1 || this.attemptnum == 4) {
+                this.set('class1', 'strike');
+
+              }
+            } 
+            else if (document.activeElement.id == "txtChg4" ) {
+              var updateField = "change2"; 
+            }
+            document.activeElement.value = "";
+            document.activeElement.blur();
+            this.set("attempt." + updateField, inputVal);
+          }
+        },
+       
+        attemptChanged: function(changeRecord) {
+          console.log("attempt changed: " + changeRecord.path + ".  attemptnum: " + this.attemptnum);
+          if (changeRecord.path == "attempt.b_currentAttempt") {
+            console.log("bcurat:  " + this.attempt.b_currentAttempt);
+          }
+        },
+
+        _hideInput: function(l_position, l_attemptNum, changeRecord) {
+          if (l_attemptNum == 1 || l_attemptNum == 4) {
+            return l_position == 2;
+          }
+          if(this.attempt.attempted != null) {//if attempted hidden true
+            return true;
+          }
+          else {
+            if(this.attempt.change2 != null) {
+              return false;
+            }
+            else if (this.attempt.change1 != null) {
+              return (l_position != 3);
+            }
+            else if (this.attempt.declared !=null) {
+              return (l_position != 2);
+            }
+          }
+        },
+        _computeClass: function (l_position, changeRecord) {
+          switch (l_position) {
+            case 1:
+              if(this.attemptnum != 1 && this.attemptnum!= 4) {
+                if (this.attempt.declared == null) {
+                  if (this.attempt.made) {
+                    return "isgreen";
+                  }
+                  
+                  else if (this.attempt.attempted > 0) {
+                    return "isred";
+                  }
+                }
+                else {
+                  return "strike";
+                }
+              }
+              else {
+                if (this.attempt.change1 == null) {
+                  if (this.attempt.made) {
+                    return "isgreen";
+                  }
+                  
+                  else if (this.attempt.attempted > 0) {
+                    return "isred";
+                  }
+                }
+                else {
+                  return "strike";
+                }
+              }
+              
+              break;
+            case 2:
+              if(this.attemptnum == 1 || this.attemptnum == 4) {
+                return "sign";
+              }
+              else {
+                if(this.attempt.declared == null) {
+                  if (this.attempt.made) {
+                    return "isgreen";  
+                  } 
+                  else if (this.attempt.attempted > 0) {
+                    return "isred";
+                  }
+                }
+                else {
+                  return "strike";
+                }
+              }
+              break;
+            case 3:
+              if (this.attempt.change1 == null) {
+                return "change 1"
+              }
+              else {
+                return "isbold";
+              }
+              break;
+            case 4:
+              if (this.attempt.change2 == null) {
+                return "change 2"
+              }
+              else {
+                return this.attempt.change2;
+              }
+            default:
+              
+          }
+        },
+        _computeDisabled: function(changeRecord, l_position) {
+          l_currentAttempt = this.attempt.b_currentAttempt;
+          //console.log("pos:  " + l_position);
+          //console.log("value:  " + changeRecord.value);
+          if(!l_currentAttempt) {
+            return true;
+          }
+          else {
+
+            if(l_position == 2 || l_position == 1) {
+              if(this.attemptnum == 1 || this.attemptnum== 4) {
+                return true;
+              }
+              else {
+                return(this.attempt.declared!=null);
+              }
+            }
+            else if (l_position == 3) {
+              return (this.attempt.change1 != null)
+            }
+            else if (l_position == 4) {
+              return (this.attempt.change1 == null)
+            }
+          }
+        },
+        _computeLabel: function(l_position, changeRecord) {
+          //console.log("compute label. attemptNum:  " + this.attemptnum + ' position:  ' + l_position);
+          switch (l_position) {
+            case 1:
+              if([2, 3, 5, 6].indexOf(this.attemptnum) > -1) {
+                if(this.attempt.auto != null) {
+                  return this.attempt.auto;
+                }
+                else {
+                  return "auto";
+                }
+              }
+              else {
+                return this.attempt.declared;
+              }
+              break;
+            case 2:
+              if(this.attemptnum == 1 || this.attemptnum == 4) {
+                return "sign";
+              }
+              else {
+                if(this.attempt.declared == null) {
+                  return "declared";
+                }
+                else {
+                  return this.attempt.declared;
+                }
+              }
+              break;
+            case 3:
+              if (this.attempt.change1 == null) {
+                return "change 1"
+              }
+              else {
+                return this.attempt.change1;
+              }
+              break;
+            case 4:
+              if (this.attempt.change2 == null) {
+                return "change 2"
+              }
+              else {
+                return this.attempt.change2;
+              }
+            default:
+              
+          }
+        
+        }
+      });
+  
+    </script>
+  
+</dom-module>

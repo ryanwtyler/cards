@@ -1,0 +1,155 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<dom-module id="my-live-scoreboard">
+  <template>
+    <style include="iron-flex iron-flex-alignment iron-flex-factors">
+
+
+    .container {
+      background-color: black;
+      color: yellow;
+      min-height: 100px;
+      min-width: 750px;
+      border-radius: 4px;
+      border: 1px solid gray;
+      opacity: 1;
+
+    }
+    
+    .child {
+      border-radius: 4px;
+      border: 1px solid gray;
+
+    }
+    .isred {
+      border-radius: 4px;
+      border: 1px solid gray;
+
+      background-color: red;
+      color: white;
+
+    }
+    .isgreen {
+      border-radius: 4px;
+      border: 1px solid gray;
+
+      background-color: green;
+      color: white;
+
+    }
+    
+
+    </style>
+    
+     <div class="container">  
+      <div class="layout horizontal myrow">
+        
+        <div class="flex-8 child">&nbsp;</div>
+        
+        <div class="flex-5 child">Snatch</div>
+        <div class="flex-5 child">Clean & Jerk</div>
+        <div class="flex-2 child">Total</div>
+      </div>
+      <div class="layout horizontal myrow">
+        
+        <div class="flex-1 child">lot</div>
+        <div class="flex-4 child">name</div>
+        <div class="flex-1 child">born</div>
+        <div class="flex-1 child">bw</div>
+        <div class="flex-1 child">next</div>
+        <div class="flex-1 child">1</div>
+        <div class="flex-1 child">2</div>
+        <div class="flex-1 child">3</div>
+        <div class="flex-1 child">Res</div>
+        <div class="flex-1 child">Place</div>
+        <div class="flex-1 child">1</div>
+        <div class="flex-1 child">2</div>
+        <div class="flex-1 child">3</div>
+        <div class="flex-1 child">Res</div>
+        <div class="flex-1 child">Place</div>
+        <div class="flex-1 child">Res</div>
+        <div class="flex-1 child">Place</div>
+          
+      </div>
+      
+        <template is="dom-repeat" items="[[meetdata]]">
+          <div class="layout horizontal myrow">
+            <div class="flex-1 child">{{item.lotId}}</div>
+            <div class="flex-4 child">{{item.name}}</div>
+            <div class="flex-1 child">{{item.dob}}</div>
+            <div class="flex-1 child">{{item.bodyWeight}}</div>
+            <div class="flex-1 child">{{item.nextWeight}}</div>
+            <div class$="{{_computeClass(1, item.attempt1)}}">{{_computeLabel(item.attempt1, item.nextWeight, item.currentAttempt, 1)}}</div>
+            <div class$="{{_computeClass(1, item.attempt2)}}">{{_computeLabel(item.attempt2, item.nextWeight, item.currentAttempt, 2)}}</div>
+            <div class$="{{_computeClass(1, item.attempt3)}}">{{_computeLabel(item.attempt3, item.nextWeight, item.currentAttempt, 3)}}</div>
+            <div class="flex-1 child">{{item.bestSnatch}}</div>
+            <div class="flex-1 child">{{item.snatchRank}}</div>
+            <div class$="{{_computeClass(1, item.attempt4)}}">{{_computeLabel(item.attempt4, item.nextWeight, item.currentAttempt, 4)}}</div>
+            <div class$="{{_computeClass(1, item.attempt5)}}">{{_computeLabel(item.attempt5, item.nextWeight, item.currentAttempt, 5)}}</div>
+            <div class$="{{_computeClass(1, item.attempt6)}}">{{_computeLabel(item.attempt6, item.nextWeight, item.currentAttempt, 6)}}</div>
+            <div class="flex-1 child">{{item.bestCj}}</div>
+            <div class="flex-1 child">{{item.cjRank}}</div>
+            <div class="flex-1 child">{{item.total}}</div>
+            <div class="flex-1 child">{{item.rank}}</div>
+          </div>
+        </template>
+      </div>
+      
+      
+    </div>   
+
+
+  </template>
+
+    <script>
+
+    
+      Polymer({
+        is: 'my-live-scoreboard',
+        properties: {
+          meetdata: {
+            type: Array,
+          }
+        },
+
+        _computeClass: function(flex, l_attempt) {
+          
+          if(!l_attempt.attempted) {
+            retval = "flex 1 child"
+          }
+          else if (l_attempt.made) {
+            var retval= "flex-1 child isgreen";
+          }
+          else {
+            var retval= "flex-1 child isred";
+          }
+          return retval;
+        },
+
+        _computeLabel: function(l_attempt, l_nextWeight, l_ca, l_an) {
+          if (l_an == l_ca) {
+            return l_nextWeight;
+          }
+          else {
+            return l_attempt.attempted;
+          }
+        },
+
+        created: function() {
+          console.log("created");
+        },
+
+        ready: function() {
+          console.log("ready");
+        },
+
+        attached: function() {
+          console.log("attached");
+        },
+      });
+  
+    </script>
+  
+</dom-module>

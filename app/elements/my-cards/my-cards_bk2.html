@@ -10,7 +10,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-styles/typography.html">
-<link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
+
 
 
 <link rel="import" href="../my-card/my-card.html">
@@ -23,20 +23,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template>
 
     <style include="iron-flex iron-flex-alignment">
-      div {
-        padding: 4px;
-      }
-      span {
-        display: inline-block;
-        padding: 0px;
-      }
-      :host .child {
+    div {
+      padding: 4px;
+    }
+    :host .child {
         border-radius: 4px;
-        border: 1px solid gray;
+          border: 1px solid gray;
       };
       :host .meetName {
         font-size: 200%;
         color: blue;
+
       };
       :host .sblive {
         position: relative;
@@ -45,20 +42,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         z-index: 10;
         cursor: move;
       };
-      paper-button {
-        
-        --paper-button: {
-          height: 40px;
-        color: var(--primary-color);
-        background: var(--light-primary-color); 
-        }
-      }
-      .sized {
-        max-width: 50%;
-        max-height: 50%;
-        padding: 20px;
-      }
-
+      :host paper-button {
+        background-color: cyan;
+      };
     
     </style>
     
@@ -68,11 +54,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       data="{{metaData}}">
     </firebase-document>
     <firebase-collection id="fblog"
-      order-by-child="timeStamp"
+
       data="{{meetLog}}">
     </firebase-collection>
     <firebase-collection id="fb"
-      ref="{{fbref}}"
+   
       data="{{meetData}}">
     </firebase-collection>
     
@@ -83,26 +69,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <my-live-scoreboard meetdata="[[meetData]]"></my-live-scoreboard>
       <paper-button raised on-tap="closeLS">Close</paper-button>
     </div>
-    <paper-button disabled$="[[isLocked(metaData.locked)]]" raised on-tap="makeLift" id="btnMake">Make</paper-button>
-    <paper-button disabled$="[[isLocked(metaData.locked)]]" raised on-tap="makeLift" id="btnMiss">Miss</paper-button>
+    <paper-button disabled$="{{isLocked(metaData.locked)}}" raised on-tap="makeLift" id="btnMake">Make</paper-button>
+    <paper-button disabled$="{{isLocked(metaData.locked)}}" raised on-tap="makeLift" id="btnMiss">Miss</paper-button>
     <paper-button raised on-tap="openLiveScoreboard" id="btnShowSB">Live Scoreboard</paper-button>
     <paper-button raised on-tap="openCP">Control Panel</paper-button>
-    <paper-dialog class="sized" auto-fit-on-attach id="controlpanel">
-      <paper-button disabled$="[[isLocked(metaData.locked)]]" raised on-tap="addSampleData" id="btnAddSampleData">Add Sample Data</paper-button>
-      <paper-button disabled$="[[isLocked(metaData.locked)]]" raised on-tap="openAddDialog" id="btnAddLifters">Add Lifters</paper-button>
-
-      <paper-button disabled$="[[isLocked(metaData.locked)]]" raised on-tap="goBack" id="btnAddLifters">Rewind</paper-button>
-      <paper-button disabled$="[[isLocked(metaData.locked)]]" raised on-tap="startOver" id="btnAddLifters">Start Over</paper-button>
+    <paper-dialog id="controlpanel" fitInto="cp">
+      <paper-button disabled$="{{isLocked(metaData.locked)}}" raised on-tap="addSampleData" id="btnAddSampleData">Add Sample Data</paper-button>
+      <paper-button disabled$="{{isLocked(metaData.locked)}}" raised on-tap="openAddDialog" id="btnAddLifters">Add Lifters</paper-button>
+      <paper-button disabled$="{{isLocked(metaData.locked)}}" raised on-tap="goBack" id="btnAddLifters">Rewind</paper-button>
+      <paper-button disabled$="{{isLocked(metaData.locked)}}" raised on-tap="startOver" id="btnAddLifters">Start Over</paper-button>
       
       <paper-button raised on-tap="openLogDialog" id="btnShowLog">Show Log</paper-button>
-      <span hidden$="[[!isOwner(user, metaData)]]">
-      <paper-button hidden$="[[metaData.locked]]" raised on-tap="lockMeet">Lock</paper-button>
-
-      <paper-button hidden$="[[!metaData.locked]]" raised on-tap="unlockMeet">Unlock</paper-button>
-
-      </span>
+      <div hidden$="{{isOwner(user, metaData}}">
+      <paper-button hidden$="{{metaData.locked}}" raised on-tap="lockMeet">Lock</paper-button>
+      <paper-button hidden$="{{!metaData.locked}}" raised on-tap="unlockMeet">Unlock</paper-button>
+      </div>
       <paper-button raised on-tap="closeCP">Close</paper-button>
-
     </paper-dialog>
       <div id="cp"></div>
       
@@ -113,8 +95,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <div class="layout horizontal wrap">
       
       <template is="dom-repeat" on-dom-change="handleDomChange" id="lifterCards" items="{{meetData}}" sort="{{checkMeetData(meetData.*)}}" filter="isCard">
-        <div><my-card weightOnTheBar="{{weightOnTheBar}}" id="card{{item.lotId}}" locked="[[metaData.locked]]" meetid="[[meetId]]" lifter="{{item}}" on-make="handleMake"></my-card>
-          <paper-button hidden$="[[isLocked(metaData.locked)]]" raised on-tap="deleteCard">delete</paper-button></div>
+        <div><my-card actions="{{metaData.actions}}" weightOnTheBar="{{weightOnTheBar}}" id="card{{item.lotId}}" locked="{{metaData.locked}}" lifter="{{item}}" on-make="handleMake"></my-card>
+          <paper-button hidden$="{{isLocked(metaData.locked)}}" raised on-tap="deleteCard">delete</paper-button></div>
         
       </template>
     </div>
@@ -125,16 +107,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <div class="flex-1 child">Name</div><div class="flex-1 child">Snatch Opener</div><div class="flex-1 child">C&J opener</div><div class="flex-1 child">Body Weight</div>
         </div>
         <div class="layout horizontal">
-          <div class="flex-1 child"><input is="iron-input" required auto-validate name="lifterName"></paper-input></div>
-          <div class="flex-1 child"><input is="iron-input" required type="number" prevent-invalid-input auto-validate name="snatchOpener"></iron-input></div>
-          <div class="flex-1 child"><input is="iron-input" required type="number" prevent-invalid-input auto-validate name="cjOpener"></iron-input></div>
-          <div class="flex-1 child"><input is="iron-input" required type="number" prevent-invalid-input error-message="numbers only!" name="bw"></iron-input></div>
+          <div class="flex-1 child"><input is="iron-input" auto-validate name="lifterName"></paper-input></div>
+          <div class="flex-1 child"><input is="iron-input" auto-validate allowed-pattern="[0-9]" name="snatchOpener"></iron-input></div>
+          <div class="flex-1 child"><input is="iron-input" auto-validate allowed-pattern="[0-9]" name="cjOpener"></iron-input></div>
+          <div class="flex-1 child"><input is="iron-input" auto-validate allowed-pattern="[0-9.]" error-message="numbers only!" name="bw"></iron-input></div>
         </div>
         <div class="layout horizontal">
-          <div class="flex-1 child"><input is="iron-input" required auto-validate name="lifterName"></paper-input></div>
-          <div class="flex-1 child"><input is="iron-input" required type="number" prevent-invalid-input auto-validate name="snatchOpener"></iron-input></div>
-          <div class="flex-1 child"><input is="iron-input" required type="number" prevent-invalid-input auto-validate name="cjOpener"></iron-input></div>
-          <div class="flex-1 child"><input is="iron-input" required type="number" prevent-invalid-input auto-validate name="bw"></iron-input></div>
+          <div class="flex-1 child"><input is="iron-input" auto-validate name="lifterName"></paper-input></div>
+          <div class="flex-1 child"><input is="iron-input" auto-validate allowed-pattern="[0-9]" name="snatchOpener"></iron-input></div>
+          <div class="flex-1 child"><input is="iron-input" auto-validate allowed-pattern="[0-9]" name="cjOpener"></iron-input></div>
+          <div class="flex-1 child"><input is="iron-input" auto-validate allowed-pattern="[0-9]" name="bw"></iron-input></div>
         </div>
         <div class="layout horizontal">
           <div class="flex-1"><paper-button raised on-tap="addLifters">Add Lifters</paper-button></div>
@@ -150,9 +132,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <paper-dialog id="log">
     <div>Meet Log</div>
       <ul>
-        <template is="dom-repeat" items="[[meetLog]]" id="t_meetLog" sort="_sortLog" observe="timeStamp">
-          <li>[[_renderLog(item)]]<paper-tooltip>[[_getTimeStamp(item.timeStamp)]]</paper-tooltip></li>
-        </template>
+      <template is="dom-repeat" items="{{meetLog}}">
+        
+        <li>
+          {{item.value}}
+        </li>
+      </template>
       </ul>
       <paper-button raised on-tap="closeLogDialog">Close</paper-button>
     </paper-dialog>
@@ -228,9 +213,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           type: String,
           notify: true
         },
-        fbref: {
-          type: Object,
-          notify: true
+        refauth: {
+          type: Object
         }
         
         
@@ -238,343 +222,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
     },
-    listeners: {
-      'changes-made': 'handleChanges'
-    },
-    created: function(ev) {
-      console.log("created");
-    },
-    ready: function(ev) {
-      console.log("ready");
-    },
-    _sortLog: function(a,b) {
-      return a.timeStamp - b.timeStamp;
-      console.log("sortlog");
-    },
-    _getTimeStamp: function(timeStamp) {
-      var myDate = new Date(timeStamp).toUTCString();
-      return myDate;
-    },
-    _validate: function() {
-
-    },
-    _renderLog: function(logItem) {
-      
-      var strLog;
-      strLog = logItem.name;
-      if(logItem.logType == 'attempt') {
-        if(logItem.success) {
-          strLog = strLog + " made ";
-        }
-        else {
-          strLog = strLog + " missed ";
-        }
-        strLog = strLog + logItem.weight;
-        if (logItem.attempt < 4) {
-          strLog = strLog + " on snatch "
-        }
-        else {
-          strLog = strLog + " on clean & jerk "
-        }
-        strLog = strLog + "number " + logItem.attempt + ".";
-      }
-      else {
-        switch (logItem.change) {
-          case "declared" :
-            strLog = strLog + " declared " + logItem.weight;
-            break;
-          case "change1" :
-            strLog = strLog + " made first change to " + logItem.weight;
-            break;
-          case "change2" :
-            strLog = strLog + " made second change to " + logItem.weight;
-            break;
-          default: 
-            break;
-        }
-      }
-
-      
-      return strLog;
-    },
-
-    handleChanges: function(ev) {
-      var fbLog = this.$.fblog.query.ref();
-      var objLog = {};
-
-      var fbKey = this.meetId;
-      var cardKey = ev.detail.fb_key;
-      objLog.timeStamp = Firebase.ServerValue.TIMESTAMP;
-      objLog.logType = "change";
-      objLog.key = cardKey;
-      objLog.weight = ev.detail.val;
-      objLog.name = ev.detail.name;
-      objLog.oldNextWeight = ev.detail.oldNextWeight;
-      objLog.change = ev.detail.field;
-      objLog.attempt = ev.detail.attempt;
-
-      var l_path = cardKey + "/attempt" + ev.detail.attempt + "/" + ev.detail.field;
-      
-      var ref = this.$.fb.query.ref();
-      var obj = {};
-      obj[l_path] = ev.detail.val;
-      l_path = cardKey + "/nextWeight";
-      obj[l_path] = ev.detail.val;
-      ref.update(obj, function(error) {
-        if (error) {
-          console.log("Data could not be saved." + error);
-        } else {
-          console.log("Data saved successfully.");
-        }
-       });
-
-      var fbLog = this.$.fblog.query.ref();
-      
-      fbLog.push(objLog);
-    },
-
 
     
-    
-   
-    makeLift: function(ev) {
-      var fbLog = this.$.fblog.query.ref();
-      var objLog = {};
-
-      var model = this.$$('my-card');//first of sorted my-cards
-      var bMade = (ev.target.id == "btnMake") ;
-      var int_weight = model.lifter.nextWeight;
-      objLog.oldNextWeight = int_weight;
-      objLog.oldTotal = model.lifter.total;
-      objLog.name = model.lifter.name;
-      var int_curAtt = model.lifter.currentAttempt;
-      
-
-      var s_attempt = "attempt" + model.lifter.currentAttempt;
-      var cardKey = model.lifter.__firebaseKey__;
-      var l_path = cardKey + "/" + s_attempt + "/made"
-      var obj = {}
-      obj[l_path] = bMade;
-
-
-      
-
-      //beg
-      
-       l_path = cardKey + "/" + s_attempt + "/attempted";
-       obj[l_path] = int_weight;
-       l_path = cardKey + "/" + s_attempt + "/b_currentAttempt";
-        obj[l_path] = false;
-        l_path = cardKey + "/attempt" + (int_curAtt + 1) + "/b_currentAttempt"
-        obj[l_path] = true;
-       if (bMade) {
-        var arrCopy = this.meetData.slice();
-        if ((int_curAtt -1) < 4) {
-          var lift = "snatch";
-          if(model.lifter.bestSnatch) {
-            objLog.oldBestSnatch = model.lifter.bestSnatch;
-          }
-          else {
-            objLog.oldBestSnatch = 0;
-          }
-        }
-        else {
-          var lift = "cj";
-          if (model.lifter.bestCj) {
-            objLog.oldBestCj = model.lifter.bestCj;
-          }
-          else {
-            objLog.oldBestCj = 0;
-          }
-          
-        }
-        
-        
-         
-        
-        if(model.lifter.currentAttempt < 4) {
-          l_path = cardKey + "/bestSnatch";
-          obj[l_path] = int_weight;
-          l_path = cardKey + "/total";
-          obj[l_path] = int_weight;
-          
-        }
-        else if (model.lifter.currentAttempt < 7) {
-          l_path = cardKey + "/bestCj";
-          obj[l_path] = int_weight;
-          l_path = cardKey + "/total";
-          obj[l_path] = int_weight + model.lifter.bestSnatch;
-          
-        }
-        
-        if(int_curAtt != 3 && int_curAtt != 6) {
-          l_path = cardKey + "/attempt" + (int_curAtt+1) +  "/auto";
-          obj[l_path] = int_weight+1;
-          l_path = cardKey + "/nextWeight";
-          obj[l_path] = int_weight+1;
-          
-        }
-      }
-      else {
-        
-        if(int_curAtt != 3 && int_curAtt != 6) {
-          l_path = cardKey + "/attempt" + (int_curAtt+1) +  "/auto";
-          obj[l_path] = int_weight;
-          l_path = cardKey + "/nextWeight";
-          obj[l_path] = int_weight;
-          
-        }
-      }
-    
-      l_path = cardKey + "/currentAttempt";
-      obj[l_path] = int_curAtt + 1;
-      
-      
-      if (int_curAtt ==3) {
-        l_path = cardKey + "/nextWeight";
-        obj[l_path] = model.lifter.attempt4.declared;
-        
-      }
-      
-      else if (int_curAtt == 6) {//need to set nextweight for sort to fire
-       l_path = cardKey + "/nextWeight";
-       obj[l_path] = int_weight + 1;
-        
-      }
-      
-      var ref = this.$.fb.query.ref();
-      ref.update(obj, function(error) {
-        if (error) {
-          console.log("Data could not be saved." + error);
-        } else {
-          console.log("Data saved successfully.");
-        }
-       });
-      
-      this.updateRanks(lift);
-
-      
-      objLog.key = cardKey;
-      objLog.logType = "attempt";
-      objLog.success = bMade;
-      objLog.weight = int_weight;
-      objLog.attempt = int_curAtt;
-      objLog.timeStamp = Firebase.ServerValue.TIMESTAMP;
-      fbLog.push(objLog);
-      
-
-      
-    },
-
-    updateRanks: function(lift) {
-      var obj = {};
-      if (lift == "snatch") {
-        arrCopy = this.meetData.sort(this._computeSortSnatch);
-      }
-      else {
-        arrCopy = this.meetData.sort(this._computeSortBestCJ);
-      }
-
-      for (i=0; i<arrCopy.length; i++) {
-        if(lift== "snatch") {
-          if (arrCopy[i].bestSnatch > 0) {
-            l_path = arrCopy[i].__firebaseKey__ + "/snatchRank";
-            obj[l_path] = i+1;
-          }
-        }
-        else {
-          if (arrCopy[i].bestCj > 0) {
-            l_path = arrCopy[i].__firebaseKey__ + "/cjRank";
-            obj[l_path] = i+1;
-          }
-        
-        }
-      }
-      var ref = this.$.fb.query.ref();
-      ref.update(obj, function(error) {
-        if (error) {
-          console.log("Data could not be saved." + error);
-        } else {
-          console.log("Data saved successfully.");
-        }
-       });
-
+    _getActions: function(l_actions) {
+      return l_actions;
     },
     
     goBack: function(ev) {
-      var i= this.meetLog.length-1;
-      var objLog = this.meetLog[i];
-      var obj = {};
-      if (objLog.logType == "attempt") {
-
-        l_path = objLog.key + "/attempt" + objLog.attempt + "/attempted";
-        obj[l_path] = null;
-        l_path = objLog.key + "/currentAttempt";
-        obj[l_path] = objLog.attempt;
-        l_path = objLog.key + "/attempt" + objLog.attempt + "/b_currentAttempt";
-        obj[l_path] = true;
-        l_path = objLog.key + "/attempt" + (objLog.attempt + 1) + "/b_currentAttempt";
-        obj[l_path] = false;
-        l_path = objLog.key + "/attempt" + (objLog.attempt + 1) + "/auto";
-        obj[l_path] = null;
-        l_path = objLog.key + "/attempt" + objLog.attempt + "/made";
-        obj[l_path] = null;
-        
-        if ((objLog.attempt - 1) < 4) {
-          
-          var lift = "snatch";
-          l_path = objLog.key + "/bestSnatch";
-          if (objLog.oldBestSnatch) {
-            obj[l_path] = objLog.oldBestSnatch;
-          }
-          else {
-            obj[l_path] = 0;
-          }
-        }
-        else {
-          
-          var lift = "cj";
-          l_path = objLog.key + "/bestCj";
-          if(objLog.oldBestCj) {
-            obj[l_path] = objLog.oldBestCj;
-          }
-          else {
-            obj[l_path] = 0;
-          }
-        }
-        
-        l_path = objLog.key + "/nextWeight";
-        obj[l_path] = objLog.oldNextWeight;
-
-        l_path = objLog.key + "/total";
-        obj[l_path] = objLog.oldTotal;
-      }
-      else {
-        l_path = objLog.key + "/attempt" + objLog.attempt + "/" + objLog.change;
-        obj[l_path] = null;
-        l_path = objLog.key + "/nextWeight";
-        obj[l_path] = objLog.oldNextWeight;
-
-      }
-      var ref = this.$.fb.query.ref();
-      ref.update(obj, function(error) {
-        if (error) {
-          console.log("Data could not be saved." + error);
-        } else {
-          console.log("Data saved successfully.");
-        }
-       });
-
-
-      obj = {};
-      
-      
-      this.updateRanks(lift);
-      this.pop('meetLog');
+      var i = this.metaData.actions.length - 1;
+      var actions = this.metaData.actions
+      this.set(actions[i].path, undefined);
+      this.pop('metaData.actions');
       
     },
     _userSet: function(newVal, oldVal) {
       if (newVal) {
+
+        
+        
+       
+        
+  
+
 
       }
     },
@@ -586,7 +255,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return false;
       }
     },
-    
+    handleTrack: function(e) {
+      console.log('track');
+      var el = e.target
+        var rect = el.style;
+        rect.top = (rect.top + e.detail.ddy) + "px";
+        rect.left = (rect.left + e.detail.ddx) + "px";
+        switch(e.detail.state) {
+          case 'start':
+            this.message = 'Tracking started!';
+            console.log(this.message);
+            break;
+          case 'track':
+            this.message = 'Tracking in progress... ' +
+              e.detail.x + ', ' + e.detail.y;
+              console.log(this.message);
+            break;
+          case 'end':
+            this.message = 'Tracking ended!';
+            console.log(this.message);
+            break;
+        }
+      },
 
    _computeSortSnatch: function(a, b) {
       if (a.bestSnatch>b.bestSnatch) {
@@ -615,12 +305,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
      
    },
 
-    
+    meetLogChanged: function(changerRecord) {
+      if (changeRecord.path.indexOf("meetLog") > 0) {
+        this.push('meetLog', changeRecord.value);
+      }
+    },
     weightOnTheBarChanged: function(newVal, oldVal) {
       
       if (newVal != oldVal && typeof oldVal != 'undefined') {
         
-        //this.push("meetLog", "Clock stopped.  Weight on bar changed from " + oldVal + " to " + newVal);
+        this.push("meetLog", "Clock stopped.  Weight on bar changed from " + oldVal + " to " + newVal);
       }
     },
 
@@ -634,10 +328,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if(newVal) {
         var fb = document.querySelector("#fb");
         var fblog = document.querySelector("#fblog");
-        var fbMeta = document.querySelector("#fbMeta");
-        fb.location= app.firebaseURL + "cards/" + newVal 
-        fblog.location=app.firebaseURL + "logs/" + newVal 
-        fbMeta.location = app.firebaseURL + "meets/" + newVal;
+        //var fbMeta = document.querySelector("#fbMeta");
+        fb.location= app.firebaseURL + "/meets/" + newVal + "/cards";
+        fblog.location=app.firebaseURL + "meets/" + newVal + "/log";
+        fbMeta.location = app.firebaseURL + "/meets/" + newVal;
         this.set('meetId', newVal);
         
       }
@@ -657,8 +351,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.set("metaData.locked", false);
     },
     isLocked: function(l_locked) {
-      return l_locked;
-      
+      return this.metaData.locked;
     },
     addSampleData: function() {
       //document.getElementById("btnAddSampleData").disabled = true;
@@ -715,7 +408,67 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       }
     },
+    
+    calcLiftsOut: function(l_count) {
+      
+      if (l_count == 1) {
+        return;
+      }
+      var arrCopy = this.meetData.slice();
+      arrCopy.sort(this._computeSort);
 
+      for(var i=1; i<arrCopy.length; i++) {
+        var a = arrCopy[i-1];
+        var b = arrCopy[i];
+        var arrCards = document.querySelector("#lifterCards");
+        //var card = arrCards
+         
+        
+        var increments = Math.floor(((b.nextWeight - a.nextWeight)/5));
+        if (increments >=3 ) {
+          b.liftsOut =3*(l_count-1);
+          
+        }
+        else if (increments == 2) {
+          b.liftsOut =  ((.8*.5 *2) + (.8*.5*2) + (.2*.5*2));
+          var j = i-2;
+          while(j>=0) {
+            increments = Math.floor(((b.nextWeight - arrCopy[i].nextWeight)/5));
+            if (increments >=3 ) {
+              b.liftsOut = b.liftsOut + 3;
+            }
+            else if (increments == 2) {
+              b.liftsOut = b.liftsOut + ((.8*.5 *2) + (.8*.5*2) + (.2*.5*2));
+            }
+            else if (increments <= 1) {
+              b.liftsOut = b.liftsOut + ((.2*.5*.7)*3) + ((.2*.5)*2) + ((.2 * .5 * .3) * 3) + (.8 * 1);
+            }
+            j--;
+          }
+          
+          
+        }
+        else if (increments <= 1) {
+          b.liftsOut = ((.2*.5*.7)*3) + ((.2*.5)*2) + ((.2 * .5 * .3) * 3) + (.8 * 1);
+          var j = i-2;
+          while(j>=0) {
+            increments = Math.floor(((b.nextWeight - arrCopy[i].nextWeight)/5));
+            if (increments >=3 ) {
+              b.liftsOut = b.liftsOut + 3;
+            }
+            else if (increments == 2) {
+              b.liftsOut = b.liftsOut + ((.8*.5 *2) + (.8*.5*2) + (.2*.5*2));
+            }
+            else if (increments <= 1) {
+              b.liftsOut = b.liftsOut + ((.2*.5*.7)*3) + ((.2*.5)*2) + ((.2 * .5 * .3) * 3) + (.8 * 1);
+            }
+            j--;
+          }
+        }
+      } 
+            
+        
+    },
 
     handleDomChange(ev) {
       console.log('domchange');
@@ -723,10 +476,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.set('weightOnTheBar', this.$.lifterCards.itemForElement(this.$$('my-card')).nextWeight);
       }
       Polymer.updateStyles();
-      var tmpMeetLog = document.querySelector("#t_meetLog");
-      if(tmpMeetLog) {
-        //tmpMeetLog.render();
-      }
     },
 
     deleteCard: function(ev) {
@@ -758,16 +507,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     openCP: function(ev) {
      document.getElementById("controlpanel").open();
+      //document.getElementById('dlg_liveScoreBoard').open();
     },
     closeCP: function() {
       document.getElementById("controlpanel").close();
     }, 
     addLifter: function(l_name, l_snatchOpener, l_cjOpener, l_bw) {
       
-      if(isNaN(l_bw)) {
-        console.log(l_bw);
-        return;
-      }
+      
       if (typeof this.meetData == "undefined") {
         var l_maxLotId = 0;
       }
@@ -788,11 +535,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           liftsOut: 0,
           bodyWeight: l_bw,
           attempt1: {attemptNum:1, declared: l_snatchOpener, b_currentAttempt: true, change1: null},
-          attempt2: {attemptNum:2, b_currentAttempt: false, auto: null},
-          attempt3: {attemptNum:3, b_currentAttempt: false, auto: null},
+          attempt2: {attemptNum:2, b_currentAttempt: false},
+          attempt3: {attemptNum:3, b_currentAttempt: false},
           attempt4: {attemptNum:4, declared: l_cjOpener, b_currentAttempt: false},
-          attempt5: {attemptNum:5, b_currentAttempt: false, auto: null},
-          attempt6: {attemptNum:6, b_currentAttempt: false, auto: null}
+          attempt5: {attemptNum:5, b_currentAttempt: false},
+          attempt6: {attemptNum:6, b_currentAttempt: false}
         };
       
       
@@ -807,26 +554,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var l_so = document.getElementsByName("snatchOpener");
       var l_co = document.getElementsByName("cjOpener");
       var l_bodyWeight = document.getElementsByName("bw");
-
       for (var i = 0; i < l_names.length; i++) {
-        if(!l_so[i].validate()) {
-          console.log("invalide snatch opener");
-          
-        }
-        else if(!l_co[i].validate()) {
-          console.log("invalide snatch opener");
-          
-        }
-        else if(!l_names[i].validate()) {
-          console.log("invalide snatch opener");
-          
-        }
-        else if(!l_bodyWeight[i].validate()) {
-          console.log("invalide snatch opener");
-          
-        }
-        else {
-        
+        if (l_names[i].value != "") {
           this.addLifter(l_names[i].value, l_so[i].value, l_co[i].value, l_bodyWeight[i].value);
         }
       }
@@ -854,11 +583,50 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       while(this.meetLog.length > 0) {
         this.pop('meetLog');
       }
-      
+      while(this.metaData.actions.length > 0) {
+        this.pop('metaData.actions');
+      }
       this.set('meetStarted', 0);
       
     },
 
+    
+    
+   
+    makeLift: function(ev) {
+
+      var model = this.$$('my-card');//first of sorted my-cards
+      var bMade = (ev.target.id == "btnMake") ;
+      var objData = {weight: parseInt(model.lifter.nextWeight), b_Made: bMade};
+      model.fire('madeLift', objData);
+
+      var arrCopy = this.meetData.slice();
+      if (model.lifter.currentAttempt-1 < 4) {
+        var lift = "snatch";
+        arrCopy = this.meetData.sort(this._computeSortSnatch);
+      }
+      else {
+        var lift = "cj";
+        arrCopy = this.meetData.sort(this._computeSortBestCJ);
+      }
+      
+      for (i=0; i<arrCopy.length; i++) {
+        if(lift== "snatch") {
+          if (arrCopy[i].bestSnatch > 0) {
+            this.set("meetData." + this.meetData.indexOf(arrCopy[i]) + ".snatchRank", i+1);
+          }
+        }
+        else {
+          if (arrCopy[i].bestCj > 0) {
+            this.set("meetData." + this.meetData.indexOf(arrCopy[i]) + ".cjRank", i+1);
+          }
+        }
+       
+      
+      }
+
+
+    },
     _computeSort: function(a, b) {
         var sameSession = ((a.currentAttempt < 4 && b.currentAttempt <4) || (a.currentAttempt>3 && b.currentAttempt >3))
        
@@ -910,9 +678,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
        return sortVal;
       },
 
-    checkMeetData: function(changeRecord) {
+      updateData: function(l_path, l_val) {
+        
+        var arrParts = l_path.split('.');
+        var nw_path = arrParts[0] + '.' + arrParts[1] + '.' + 'nextWeight';
+        if (l_val) {
+          var nw = l_val;
+        }
+        else {
+          switch (arrParts[2]) {
+            case 'change1':
+              this.get(arrParts[0] + '.' + arrParts[1] + '.' + 'declared');
+              break;
+            default:
+              break;
+          }
+        }
+        //update nextWeight
+        this.set(nw_path, l_val);
+        //update declared, change1 or change2
+        this.push('metaData.actions', {path: l_path, val: l_val});
+      },
 
-      console.log(changeRecord);
+    checkMeetData: function(changeRecord) {
+      
+      if(changeRecord.path.indexOf('declared') > 0 || changeRecord.path.indexOf('change1') > 0 || changeRecord.path.indexOf('change2') > 0) {
+        this.updateData(changeRecord.path, changeRecord.value);
+        
+      }
+      
       return function(a, b) {
         
         //console.log("a:  " + a.name + " " + this.items.indexOf(a));

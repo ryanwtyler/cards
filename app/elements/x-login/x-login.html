@@ -1,0 +1,141 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/firebase-element/firebase-auth.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/scale-up-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+
+
+<dom-module id="x-login">
+
+  <template>
+
+    <style>
+      paper-dialog {
+        padding: 32px;
+      }
+
+      .google-sign-in {
+        display: inline-block;
+        background: #4285f4;
+        color: white;
+        width: 190px;
+        border-radius: 5px;
+        white-space: nowrap;
+      }
+
+      .google-sign-in:hover {
+        cursor: pointer;
+      }
+
+      .google-sign-in-icon {
+        background: url('../../images/g-normal.png') transparent 5px 50% no-repeat;
+        display: inline-block;
+        vertical-align: middle;
+        width: 42px;
+        height: 42px;
+        border-right: #2265d4 1px solid;
+      }
+
+      .google-sign-in-label {
+        display: inline-block;
+        vertical-align: middle;
+        padding-left: 42px;
+        padding-right: 42px;
+        font-size: 14px;
+        font-weight: bold;
+        /* Use the Roboto font that is loaded in the <head> */
+        font-family: 'Roboto', sans-serif;
+      }
+    </style>
+
+    <firebase-auth id="authenticate"
+                   user="{{user}}"
+                   location="{{location}}"
+                   ref="{{refauth}}"
+                   provider="google">
+    </firebase-auth>
+    <div hidden$="[[!user]]">
+    <paper-icon-button src='../../images/signout.png' raised on-tap="signOut" hidden$="[[!user]]" id="btnLogOut"></paper-icon-button>
+
+    <span>Log Out</span>
+    </div>
+    <div hidden$="[[user]]">
+      
+      
+        <div class="google-sign-in"
+             tabindex="0"
+             on-tap="signIn">
+          <span class="google-sign-in-icon"></span>
+          <span class="google-sign-in-label">Google</span>
+        </div>
+      
+    </div>
+
+  </template>
+  <script>
+    Polymer({
+
+      is: 'x-login',
+
+      properties: {
+
+        user: {
+          notify: true
+        },
+        refauth: {
+          notify: true,
+          observer: 'checkUser'
+        }
+      },
+
+      signIn: function() {
+        this.$.authenticate.login();
+        
+      },
+
+      signOut: function() {
+        this.$.authenticate.logout();
+        this.user = null;
+      },
+      created: function(ev) {
+        console.log ('x-login');
+      },
+
+
+     
+
+      checkUser: function(l_ref) {
+        console.log("ref: ",l_ref);
+        if (l_ref) {
+          l_ref.onAuth(function(authData) {
+              
+              // save the user's profile into the database so we can list users,
+              // use them in Security and Firebase Rules, and show profiles
+              if(authData) {
+              l_ref.child("users").child(authData.uid).set({
+                provider: authData.provider,
+                name: authData.google.displayName
+              });
+            }
+            
+          });
+         
+
+        }
+        else {
+          console.log("lref is null", l_ref);
+        }
+      }
+    });
+
+  </script>
+</dom-module>

@@ -1,0 +1,41 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+
+
+
+<dom-module id="my-cards-data">
+  <template>
+   name: {{meetData.0.name}}
+
+  </template>
+
+    <script>
+
+    
+      Polymer({
+        is: 'my-cards-data',
+        properties: {
+          meetData: {
+            type: Array
+          }
+        },
+        observers: ['dataObserved(meetData.*)'],
+
+       
+
+        created: function(ev) {
+          console.log("hhhhhdkasdjflkasdjfkjsdalkfjladkjflkjdljfdslkj");
+        },
+        dataObserved: function(cr) {
+          if(cr.path.indexOf("nextWeight") > 0) {
+            console.log ("nextWeith");
+          }
+        }
+      
+        
+    });
+  
+    </script>
+  
+</dom-module>

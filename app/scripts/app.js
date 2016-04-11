@@ -23,6 +23,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // app.baseUrl = '/polymer-starter-kit/';
   }
 
+  app.firebaseURL = 'https://brilliant-inferno-5243.firebaseio.com/';
+
+  // Let the user know that offline caching has worked and their
+  // app is available offline
+  
+
+  app.signOut = function() {
+    this.$.auth.signOut();
+  };
+
+ 
+  
   app.displayInstalledToast = function() {
     // Check to make sure caching is actually enabled—it won't be in the dev environment.
     if (!Polymer.dom(document).querySelector('platinum-sw-cache').disabled) {
@@ -30,10 +42,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
   };
 
+
+  
   // Listen for template bound event to know when bindings
   // have resolved and content has been stamped to the page
   app.addEventListener('dom-change', function() {
-    console.log('Our app is ready to rock!');
+   
   });
 
   // See https://github.com/Polymer/polymer/issues/1381
@@ -68,6 +82,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Scale middleContainer appName
     Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', appName);
   });
+
+window.addEventListener("orientationchange", function() {
+  // Announce the new orientation number
+  app.scrollToTop();
+}, false);
 
   // Scroll page to top and expand header
   app.scrollPageToTop = function() {

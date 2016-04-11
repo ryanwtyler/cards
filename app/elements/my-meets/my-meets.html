@@ -1,0 +1,275 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<dom-module id="my-meets">
+  <template>
+    <style include="iron-flex iron-flex-alignment iron-flex-factors">
+      
+      paper-button {
+        height: 40px;
+        --paper-button: {
+        color: var(--primary-color);
+        background: var(--light-primary-color); 
+        }
+      }
+
+       .mycontainer {
+          
+          background-color: gray
+       }
+        .child {
+         
+          margin: 1px;
+          padding: 1px;
+          background-color: white;
+        }
+        #btn_createMeet {
+          vertical-align: bottom;
+        }
+        
+    </style>
+    
+      <firebase-collection id="fb_meta"
+      location="https://brilliant-inferno-5243.firebaseio.com/meets"
+      data="{{meets}}"
+      >
+      </firebase-collection>
+
+      <firebase-collection id="fb_cards"
+      location="https://brilliant-inferno-5243.firebaseio.com/logs">
+      </firebase-collection>
+
+      <firebase-collection id="fb_logs"
+      location="https://brilliant-inferno-5243.firebaseio.com/cards">
+      </firebase-collection>
+      
+      
+
+      
+   
+      user: {{user.google.displayName}}
+      <div class="layout horizontal">
+        <div class="flex-1">
+          <paper-button id="btn_createMeet" raised on-tap="createMeet">Create Meet</paper-button>
+        </div>
+        <div class="flex-6">
+          <paper-input id="meetName" label="Meet Name" prevent-invalid-input allowed-pattern="[a-z,A-Z, ,0-9]"></paper-input>
+        </div>
+
+      </div>
+      <div class="layout horizontal mycontainer">
+        <div class="flex-5 child"><paper-input label="meet name" value="{{filterMeetName::input}}"></paper-input></div>
+        <div class="flex-5 child"><paper-input label="owner" value="{{filterMeetOwner::input}}"></paper-input></div>
+        <div class="flex-4 child">Date Created</div>
+        <div class="flex-1 child" style="text-align:center"><paper-icon-button  on-tap="deleteMeets" icon="delete"></paper-icon-button></div>
+      </div>
+
+        <template is="dom-repeat" id="meets" items="{{meets}}" sort="_computeSort" filter="[[_filterMeet(filterMeetName, filterMeetOwner)]]" observe="user.*">
+          <div class="layout horizontal mycontainer">
+            <div class="flex-5 child"><a href$="{{baseUrl}}livecardsroom/{{ item.__firebaseKey__ }}">{{item.meetName}}</a></div>
+            <div class="flex-5 child">[[item.ownerName]]</div>
+            <div class="flex-4 child">[[_getDateCreated(item.timeStamp)]]</div>
+            <div class="flex-1 child" style="text-align:center"><paper-checkbox hidden$="{{!isOwner(user, item)}}" name="chkDelete" value="{{item}}"></paper-checkbox></div>
+          </div>
+        </template>
+
+
+        
+        
+      
+
+  
+    
+    
+  </template>
+
+  <script>
+    (function() {
+      'use strict';
+
+      Polymer({
+        is: 'my-meets',
+
+        properties: {
+          
+          filterMeetName: {
+            type: String,
+            notify: true,
+            value: ""
+          },
+          filterMeetOwner: {
+            type: String,
+            notify: true,
+            value: ""
+          },
+          user: {
+            observer: '_userChanged',
+            value: null
+          },
+          firebaseURL: {
+            type: String
+          },
+          meets: {
+            type: Array,
+            notify: true,
+            value: function() {return [];}
+          }
+        },
+
+        _getDateCreated: function(timeStamp) {
+          var myDate = new Date(timeStamp).toUTCString();
+          return myDate;
+        },
+
+        _computeSort: function (a, b) {
+          if(this.user) {
+            if(a.owner == this.user.auth.uid && b.owner == this.user.auth.uid) {
+              return b.timeStamp - a.timeStamp;
+            }
+            if (a.owner == this.user.auth.uid) {
+              return -1;
+            }
+            else if (b.owner == this.user.auth.uid) {
+              return 1;
+            }
+            else {
+              if(a.timeStamp && !b.timeStamp) {
+                return -1;
+              }
+              else if (b.timeStamp && !a.timeStamp) {
+                return 1;
+              }
+              return b.timeStamp - a.timeStamp;
+            }
+            
+          }
+          else {
+            if(a.timeStamp && !b.timeStamp) {
+              return -1;
+            }
+            else if (b.timeStamp && !a.timeStamp) {
+              return 1;
+            }
+            return b.timeStamp - a.timeStamp;
+          }
+          
+        },
+
+        isOwner: function(user, l_meet_owner) {
+          if(user) {
+            return this.user.auth.uid == l_meet_owner.owner;
+          }
+          else {
+            return false;
+          }
+        },
+        _userChanged: function(user) {
+          if (user) {
+            console.log(user);
+            
+          }
+        },
+        _filterMeet: function(l_meetName, l_meetOwner) {
+          
+          if (l_meetName == "" && l_meetOwner == "") {
+            // set filter to null to disable filtering
+            return null;
+          } else {
+            // return a filter function for the current search string
+            if(l_meetName) {
+              l_meetName = l_meetName.toLowerCase();
+            }
+            else {
+              l_meetName = "";
+            }
+            if(l_meetOwner) {
+              l_meetOwner = l_meetOwner.toLowerCase();
+            }
+            else {
+              l_meetOwner = "";
+            }
+            return function(item) {
+              if(item.ownerName) {
+                var s_ownerName = item.ownerName.toLowerCase();
+              }
+              else {
+                var s_ownerName = "";
+              }
+              if (l_meetName =="") {
+                
+                return (s_ownerName.indexOf(l_meetOwner) >= 0);
+              }
+              if (l_meetOwner == "") {
+                return (item.meetName.indexOf(l_meetName) >= 0);
+              }
+              return ((item.meetName.indexOf(l_meetName) >= 0) && (s_ownerName.indexOf(l_meetOwner) >= 0));
+            };
+          }
+        },
+        
+        deleteMeets: function(ev) {
+          var arrMeets = document.getElementsByName("chkDelete");
+          for (var i = 0; i<arrMeets.length; i++) {
+            if(arrMeets[i].checked ) {
+              
+              console.log(arrMeets[i].value);
+              
+              
+              this.$.fb_cards.removeByKey(arrMeets[i].value.__firebaseKey__);
+              this.$.fb_logs.removeByKey(arrMeets[i].value.__firebaseKey__);
+              fb_meta.remove(arrMeets[i].value);
+
+            }
+          }
+        },
+
+        
+        createMeet: function() {
+          
+          var fb = this.$.fb_meta;
+          var l_meetName = document.querySelector('#meetName').value;
+          
+            
+            if (this.user) {
+              var l_owner = this.user.auth.uid;
+              var l_ownerName = this.user.auth.name;
+            }
+
+            if (this.user) {
+              var obj = {meetName: l_meetName, owner: l_owner, ownerName: this.user.google.displayName};
+            }
+            else {
+              var obj = {meetName: l_meetName};
+              
+            }
+            
+            obj.timeStamp = Firebase.ServerValue.TIMESTAMP;
+            fb.add(obj); 
+            
+            
+            
+          
+        },
+       
+        created: function() {
+          console.log("created my-meets");
+          
+        }
+
+
+      });
+    })();
+  </script>
+</dom-module>
